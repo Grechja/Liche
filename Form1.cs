@@ -16,13 +16,20 @@ namespace Life
 
         people peeps1, peeps2;
         int[,] peeptick;
-        int peep, cell, cinf, cimm;
+        int peep, cell, cinf, cimm, chea;
 
         private void button1_Click(object sender, EventArgs e)
         {
             //peep = Convert.ToInt32(textBox1.Text);
             peep = 1;
             cell = Convert.ToInt32(textBox2.Text);
+
+            if (cell % 2 != 1)
+            {
+                MessageBox.Show("Произошла ошибка!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             dataGridView1.RowCount = cell;
             dataGridView1.ColumnCount = cell;
             dataGridView1.Rows[0].Cells[0].Selected = false;
@@ -39,6 +46,10 @@ namespace Life
             peeps2 = new people(0, cell);
             peeptick = new int[cell, cell];
 
+            (cinf, cimm, chea) = (1, 0, cell * cell - 1);
+            label1.Text = Convert.ToString("Здоровых клеток: " + chea);
+            label3.Text = Convert.ToString("Зараженных клеток: " + cinf);
+            label4.Text = Convert.ToString("Иммунных клеток: " + cimm);
             peeps1[cell / 2, cell / 2] = '1';
             peeps1.draw(dataGridView1);
 
@@ -82,7 +93,7 @@ namespace Life
                     {
                         if (t + 1 >= 6)
                         {
-                            cinf += 1;
+                            cinf -= 1; cimm += 1;
                             peeps2[i, j] = '2';   // через 6 тиков — иммунитет
                             peeptick[i, j] = 0;
                         }
@@ -96,7 +107,7 @@ namespace Life
                     {
                         if (t + 1 >= 4)
                         {
-                            cimm += 1;
+                            cimm -= 1; chea += 1;
                             peeps2[i, j] = '\0';  // через 4 тика — снова здоровая
                             peeptick[i, j] = 0;
                         }
@@ -118,10 +129,11 @@ namespace Life
                             bool infect = false;
                             for (int k = 0; k < nb; k++)
                             {
-                                if (ran.Next(0, 10) > 7) { infect = true; break; }
+                                if (ran.Next(0, 10) > 4) { infect = true; break; }
                             }
                             if (infect)
                             {
+                                chea -= 1; cinf += 1;
                                 peeps2[i, j] = '1';
                                 peeptick[i, j] = 0;
                             }
@@ -129,11 +141,9 @@ namespace Life
                     }
                 }
             }
-            int chea = (cell * cell - cinf - cimm);
-            label1.Text = Convert.ToString(cinf);
-            label3.Text = Convert.ToString(cimm);
-            label4.Text = Convert.ToString(chea);
-            (cinf, cimm) = (0, 0);
+            label1.Text = Convert.ToString("Здоровых клеток: " + chea);
+            label3.Text = Convert.ToString("Зараженных клеток: " + cinf);
+            label4.Text = Convert.ToString("Иммунных клеток: " + cimm);
 
             peeps2.draw(dataGridView1);
             peeps1 = peeps2;
@@ -144,16 +154,6 @@ namespace Life
         {
             birth();
 
-            var (health, infect, immune) = (0, 0, 0);
-            for (int i = 0; i < cell; i++)
-            {
-                for (int j = 0; j < cell; j++)
-                {
-                    if (peeps1[i, j] == '\0') { health += 1; }
-                    if (peeps1[i, j] == '\0') { health += 1; }
-                    if (peeps1[i, j] == '\0') { health += 1; }
-                }
-            }
         }
 
         private void button3_Click(object sender, EventArgs e)
